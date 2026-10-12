@@ -42,6 +42,52 @@ void read_person_info(const char *role, char *name_out, size_t name_capacity, in
     scanf("%d", age_out);
     getchar(); // Consume the newline character left by scanf
 }
+
+void link_parents(Person *child, Person *father, Person *mother) {
+    child->father = father;
+    child->mother = mother;
+}
+
+void print_family_relationships(const Person *me)
+{
+    printf("\n=== FAMILY TREE RELATIONSHIPS ===\n");
+
+    // Print yourself
+    printf("1. YOURSELF:\n");
+
+    printf("You: %s, Age: %d\n\n", me->name, me->age);
+
+    // Print your parents
+    printf("2. YOUR PARENTS:\n");
+    if (me->father != NULL) {
+        printf("Father: %s, Age: %d\n", me->father->name, me->father->age);
+    }
+    if (me->mother != NULL) {
+        printf("Mother: %s, Age: %d\n\n", me->mother->name, me->mother->age);
+    }
+
+    // Print your paternal grandparents
+        printf("3. PATERNAL GRANDPARENTS:\n");
+    if (me->father != NULL) {
+        if (me->father->father != NULL) {
+            printf("Paternal Grandfather: %s, Age: %d\n", me->father->father->name, me->father->father->age);
+        }
+        if (me->father->mother != NULL) {
+            printf("Paternal Grandmother: %s, Age: %d\n\n", me->father->mother->name, me->father->mother->age);
+        }
+    }
+
+    // Print your maternal grandparents
+    printf("4. MATERNAL GRANDPARENTS:\n");
+    if (me->mother != NULL) {
+        if (me->mother->father != NULL) {
+            printf("Maternal Grandfather: %s, Age: %d\n", me->mother->father->name, me->mother->father->age);
+        }
+        if (me->mother->mother != NULL) {
+            printf("Maternal Grandmother: %s, Age: %d\n\n", me->mother->mother->name, me->mother->mother->age);
+        }
+    }
+}
 int main(){
     Person *people[7];
     const char *roles[7] = {"Paternal Grandfather", "Paternal Grandmother", "Maternal Grandfather", "Maternal Grandmother", "Father", "Mother", "Yourself"};
@@ -50,13 +96,13 @@ int main(){
         read_person_info(roles[i], people[i]->name, sizeof(people[i]->name), &people[i]->age);
     }
     
-    for(int i = 0; i < 7; i++) {
-        printf("%s: Name: %s, Age: %d\n", roles[i], people[i]->name, people[i]->age);
-    }
 
-    for (int i = 0; i < 7; i++) {
-    free(people[i]);
-    }
+    // Link parents for the child (index 6)
+    link_parents(people[6], people[4], people[5]); // Yourself's parents
+    link_parents(people[4], people[0], people[1]); // Father's parents
+    link_parents(people[5], people[2], people[3]); // Mother's parents
     
+    print_family_relationships(people[6]); // Print relationships for the child
+
     return 0;
 }
