@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct person{
+typedef struct Person{
     char name[50];
     int age;
-    struct person *father;
-    struct person *mother;
+    struct Person *father;
+    struct Person *mother;
 } Person;
 
 Person *create_person(const char *name, int age)
@@ -34,13 +34,21 @@ Person *create_person(const char *name, int age)
     person->mother = NULL;
     return person;
 }
-void read_person_info(const char *role, char *name_out, size_t name_capacity, int *age_out) {
+void read_person_info(const char *role, char *name_out,
+                      size_t name_capacity, int *age_out) {
     printf("Enter %s's name: ", role);
-    fgets(name_out, name_capacity, stdin);
-    name_out[strcspn(name_out, "\n")] = 0; // Remove newline character
+
+    if (fgets(name_out, name_capacity, stdin) == NULL) {
+        fprintf(stderr, "Failed to read name\n");
+        exit(EXIT_FAILURE);
+    }
+
+    name_out[strcspn(name_out, "\n")] = '\0';
+
+
     printf("Enter %s's age: ", role);
     scanf("%d", age_out);
-    getchar(); // Consume the newline character left by scanf
+    getchar();
 }
 
 void link_parents(Person *child, Person *father, Person *mother) {
@@ -88,6 +96,15 @@ void print_family_relationships(const Person *me)
         }
     }
 }
+
+void free_family_tree(Person *people[], int count) 
+{ 
+    for (int i = 0; i < count; i++)
+    { 
+        free(people[i]); 
+    } 
+}
+
 int main(){
     Person *people[7];
     const char *roles[7] = {"Paternal Grandfather", "Paternal Grandmother", "Maternal Grandfather", "Maternal Grandmother", "Father", "Mother", "Yourself"};
@@ -103,6 +120,7 @@ int main(){
     link_parents(people[5], people[2], people[3]); // Mother's parents
     
     print_family_relationships(people[6]); // Print relationships for the child
-
+    
+    free_family_tree(people, 7); // Free the allocated memory
     return 0;
 }
